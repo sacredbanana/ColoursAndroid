@@ -1,7 +1,9 @@
 package net.minotaurcreative.Colours.objects;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.graphics.Matrix;
+import android.util.Log;
+import net.minotaurcreative.Colours.enums.AlgorithmType;
 
 import java.util.*;
 
@@ -10,23 +12,15 @@ import java.util.*;
  * @author Cameron Armstrong
  */
 public class ColourScreen {
-    final int SCREEN_WIDTH = 1280;
-    final int SCREEN_HEIGHT = 640;
-
     /**
      * Total number of colours = 32^3
      */
     private final int TOTAL_COLOURS = 32768;
 
     /**
-     * Number of algorithms used
+     * Algorithm being used
      */
-    private final int NUM_ALGORITHMS = 9;
-
-    /**
-     * Current algorithm being used
-     */
-    private int currentAlgorithm = 0;
+    private AlgorithmType algorithm;
 
     /**
      * Position in colour cycle
@@ -58,10 +52,11 @@ public class ColourScreen {
     /**
      * Constructor
      */
-    public ColourScreen() {
+    public ColourScreen(AlgorithmType algorithm) {
 //        colours = new ArrayList<>(TOTAL_COLOURS);
+        buffer = new int[TOTAL_COLOURS];
 
-        colourCubeSlice(); // Start first algorithm
+//        colourCubeSlice(); // Start first algorithm
 
 //        Timer timer = new Timer(1, e -> { // Add timer allowing colour cycling animation
 //            cycle += cycleSpeed;
@@ -70,56 +65,45 @@ public class ColourScreen {
 //            repaint();
 //        });
 //        timer.start();
+
+        switch (algorithm) {
+            case COLOUR_CUBE_SLICE:
+                colourCubeSlice();
+                break;
+            case COLOUR_CUBE_SLICE_WITH_SMOOTHING:
+                smooth();
+                break;
+            case RANDOM_SPREAD:
+                randomSpread();
+                break;
+            case COLOUR_CUBE_SLICE_WITH_RED_ACCUMULATION:
+//                clumpColours();
+                break;
+            case NEAREST_TO_PREVIOUS_COLOUR:
+//                nearestToPrevious();
+                break;
+            case NEAREST_TO_BLOCK_ABOVE:
+//                nearestToAbove();
+                break;
+            case NEAREST_TO_BOTH_ABOVE_AND_PREVIOUS_BLOCKS:
+//                nearestToAboveAndPrevious();
+                break;
+            case NEAREST_TO_ALL_THREE_BLOCKS_ABOVE:
+//                nearestToAllThreeAbove();
+                break;
+            case NEAREST_TO_ALL_THREE_PIXELS_ABOVE_PLUS_PREVIOUS:
+//                nearestToAllThreeAboveAndPrevious();
+                break;
+        }
     }
 
     /**
      * Main drawing method
      */
-    public Bitmap generateBitmap() {
-        return Bitmap.createBitmap(buffer, TOTAL_COLOURS/256*2, TOTAL_COLOURS/256, Bitmap.Config.ARGB_8888);
-//
-//        // Draw all colours contained in the ArrayList "colours"
-//        for (Colour colour : colours) {
-//            // Get position
-////            int coordX = colour.xPos;
-////            int coordY = colour.yPos;
-//
-//            // Adjust for colour cycling
-//            int red = colour.getRed() + cycle;
-//            if (red > 255)
-//                red -= 255;
-//            int green = colour.getGreen() + cycle;
-//            if (green > 255)
-//                green -= 255;
-//            int blue = colour.getBlue() + cycle;
-//            if (blue > 255)
-//                blue -= 255;
-////            Color adjustedColour = new Color(red, green, blue);
-////            g.setColor(adjustedColour);
-//
-//            // Define block size
-//            final int BLOCK_WIDTH = 5;
-//            final int BLOCK_HEIGHT = 5;
-//
-//            Bitmap.Config config = Bitmap.Config.ARGB_8888;
-//            return Bitmap.createBitmap(buffer, TOTAL_COLOURS/256*2, TOTAL_COLOURS/256, Bitmap.Config.ARGB_8888);
-//
-//            // Draw block
-////            g.fillRect(colour.xPos * BLOCK_WIDTH, colour.yPos * BLOCK_HEIGHT,BLOCK_WIDTH, BLOCK_HEIGHT);
-//        }
-//
-//        // Draw menu
-////        if (menuVisible) {
-////            g.setColor(Color.LIGHT_GRAY);
-////            g.fillRect(0,0,getWidth(),20);
-////            g.setColor(Color.BLACK);
-////            g.setFont(new Font("Serif", Font.BOLD,12));
-////            g.drawString("↑: Cycle speed up", 10,14);
-////            g.drawString("↓: Cycle speed down", 150, 14);
-////            g.drawString("SPACE: Switch algorithm", 330, 14);
-////            g.drawString("M: Show/hide menu", 530, 14);
-////            g.drawString("Current Algorithm: " + currentAlgorithmName, 730,14);
-////        }
+    public Bitmap generateBitmap(Matrix scalingMatrix) {
+        Bitmap bitmap = Bitmap.createBitmap(buffer, TOTAL_COLOURS/256*2, TOTAL_COLOURS/256, Bitmap.Config.ARGB_8888);
+        Bitmap resized = Bitmap.createBitmap(bitmap, 0, 0, 256, 128, scalingMatrix, false);
+        return resized;
     }
 
     /**
@@ -177,70 +161,59 @@ public class ColourScreen {
     }
 
     /**
-     * Shows/hides menu
-     */
-    public void toggleMenu() {
-        menuVisible = !menuVisible;
-    }
-
-    /**
      * Switches algorithm
      */
-    public void switchAlgorithm() {
-        colours.clear();
-        cycleSpeed = 0;
-        cycle = 0;
-        if (++currentAlgorithm >= NUM_ALGORITHMS)
-            currentAlgorithm = 0;
-        switch (currentAlgorithm) {
-            case 0:
-                colourCubeSlice();
-                break;
-            case 1:
-                smooth();
-                break;
-            case 2:
-                randomSpread();
-                break;
-            case 3:
-//                clumpColours();
-                break;
-            case 4:
-//                nearestToPrevious();
-                break;
-            case 5:
-//                nearestToAbove();
-                break;
-            case 6:
-//                nearestToAboveAndPrevious();
-                break;
-            case 7:
-//                nearestToAllThreeAbove();
-                break;
-            case 8:
-//                nearestToAllThreeAboveAndPrevious();
-                break;
-        }
-    }
+//    public void switchAlgorithm() {
+//        colours.clear();
+//        cycleSpeed = 0;
+//        cycle = 0;
+//        if (++currentAlgorithm >= NUM_ALGORITHMS)
+//            currentAlgorithm = 0;
+//        switch (currentAlgorithm) {
+//            case 0:
+//                colourCubeSlice();
+//                break;
+//            case 1:
+//                smooth();
+//                break;
+//            case 2:
+//                randomSpread();
+//                break;
+//            case 3:
+////                clumpColours();
+//                break;
+//            case 4:
+////                nearestToPrevious();
+//                break;
+//            case 5:
+////                nearestToAbove();
+//                break;
+//            case 6:
+////                nearestToAboveAndPrevious();
+//                break;
+//            case 7:
+////                nearestToAllThreeAbove();
+//                break;
+//            case 8:
+////                nearestToAllThreeAboveAndPrevious();
+//                break;
+//        }
+//    }
 
     /**
      * ALGORITHM: Colour Cube Slice
      * Colours added by slicing colour cube
      */
-    private void colourCubeSlice() {
-        currentAlgorithmName = "Colour Cube Slice";
-
+    public void colourCubeSlice() {
         int xCoord = 0;
         int yCoord = 0;
 
         for (int red = 0; red <= 0xff; red += 8) {
             for (int green = 0; green < 256; green += 8) {
                 for (int blue = 0; blue < 256; blue += 8) {
-                    buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+1] = red;
-                    buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+2] = green;
-                    buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+3] = blue;
+                    buffer[yCoord*TOTAL_COLOURS/256*2+xCoord] = (0xff << 24) | (blue & 0xff) << 16 | (green & 0xff) << 8 | (red & 0xff);
 //                    Colour colour = new Colour(red, green, blue, xCoord, yCoord);
-                    if ((++xCoord) == 256) {
+                    if (++xCoord >= TOTAL_COLOURS/256*2) {
                         xCoord = 0;
                         yCoord++;
                     }
@@ -255,8 +228,6 @@ public class ColourScreen {
      * Same as Colour Cube Slice but the colours alternate directions for a smoother appearance
      */
     private void smooth() {
-        currentAlgorithmName = "Colour Cube Slice with Smoothing";
-
         int xCoord = 0;
         int yCoord = 0;
         boolean blueGradientUp = true;
@@ -267,10 +238,7 @@ public class ColourScreen {
                 for (int green = 0; green < 256; green += 8) {
                     if (blueGradientUp) {
                         for (int blue = 0; blue < 256; blue += 8) {
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+1] = red;
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+2] = green;
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+3] = blue;
-//                            Colour colour = new Colour(red, green, blue, xCoord, yCoord);
+                            buffer[yCoord*TOTAL_COLOURS/256*2+xCoord] = (0xff << 24) | (blue & 0xff) << 16 | (green & 0xff) << 8 | (red & 0xff);
                             if ((++xCoord) >= 256) {
                                 xCoord = 0;
                                 yCoord++;
@@ -279,10 +247,7 @@ public class ColourScreen {
                         }
                     } else {
                         for (int blue = 248; blue >= 0; blue -= 8) {
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+1] = red;
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+2] = green;
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+3] = blue;
-//                            Colour colour = new Colour(red, green, blue, xCoord, yCoord);
+                            buffer[yCoord*TOTAL_COLOURS/256*2+xCoord] = (0xff << 24) | (blue & 0xff) << 16 | (green & 0xff) << 8 | (red & 0xff);
                             if ((++xCoord) >= 256) {
                                 xCoord = 0;
                                 yCoord++;
@@ -296,10 +261,7 @@ public class ColourScreen {
                 for (int green = 248; green >= 0; green -= 8) {
                     if (blueGradientUp) {
                         for (int blue = 0; blue < 256; blue += 8) {
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+1] = red;
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+2] = green;
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+3] = blue;
-//                            Colour colour = new Colour(red, green, blue, xCoord, yCoord);
+                            buffer[yCoord*TOTAL_COLOURS/256*2+xCoord] = (0xff << 24) | (blue & 0xff) << 16 | (green & 0xff) << 8 | (red & 0xff);
                             if ((++xCoord) >= 256) {
                                 xCoord = 0;
                                 yCoord++;
@@ -308,10 +270,7 @@ public class ColourScreen {
                         }
                     } else {
                         for (int blue = 248; blue >= 0; blue -= 8) {
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+1] = red;
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+2] = green;
-                            buffer[yCoord*TOTAL_COLOURS/256*2*4+xCoord+3] = blue;
-//                            Colour colour = new Colour(red, green, blue, xCoord, yCoord);
+                            buffer[yCoord*TOTAL_COLOURS/256*2+xCoord] = (0xff << 24) | (blue & 0xff) << 16 | (green & 0xff) << 8 | (red & 0xff);
                             if ((++xCoord) >= TOTAL_COLOURS/256*2*3) {
                                 xCoord = 0;
                                 yCoord++;
@@ -333,20 +292,15 @@ public class ColourScreen {
     private void randomSpread() {
         colourCubeSlice();
 
-        currentAlgorithmName = "Random Spread";
         Random randomGenerator = new Random();
 
         for (int y = 0; y < TOTAL_COLOURS/256; y++) {
-            for (int x = 0; x < TOTAL_COLOURS/256*2*4; x += 4) {
-                int randomXIndex = randomGenerator.nextInt(TOTAL_COLOURS/256*2*4);
+            for (int x = 0; x < TOTAL_COLOURS/256*2; x++) {
+                int randomXIndex = randomGenerator.nextInt(TOTAL_COLOURS/256*2);
                 int randomYIndex = randomGenerator.nextInt(TOTAL_COLOURS/256);
-                Colour tempColour = new Colour(buffer[y*TOTAL_COLOURS/256*2*4+x+1], buffer[y*TOTAL_COLOURS/256*2*4+x+2], buffer[y*TOTAL_COLOURS/256*2*4+x+3]);
-                buffer[y*TOTAL_COLOURS/256*2*4+x+1] = buffer[randomYIndex*TOTAL_COLOURS/256*2*4+randomXIndex+1];
-                buffer[y*TOTAL_COLOURS/256*2*4+x+2] = buffer[randomYIndex*TOTAL_COLOURS/256*2*4+randomXIndex+2];
-                buffer[y*TOTAL_COLOURS/256*2*4+x+3] = buffer[randomYIndex*TOTAL_COLOURS/256*2*4+randomXIndex+3];
-                buffer[randomYIndex*TOTAL_COLOURS/256*2*4+randomXIndex+1] = tempColour.getRed();
-                buffer[randomYIndex*TOTAL_COLOURS/256*2*4+randomXIndex+2] = tempColour.getGreen();
-                buffer[randomYIndex*TOTAL_COLOURS/256*2*4+randomXIndex+3] = tempColour.getBlue();
+                int tempColour = buffer[y*TOTAL_COLOURS/256*2+x];
+                buffer[y*TOTAL_COLOURS/256*2+x] = buffer[randomYIndex*TOTAL_COLOURS/256*2+randomXIndex];
+                buffer[randomYIndex*TOTAL_COLOURS/256*2+randomXIndex] = tempColour;
             }
         }
     }
