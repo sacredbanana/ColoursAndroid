@@ -10,14 +10,14 @@ public class DisplayActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display);
+//        setContentView(R.layout.activity_display);
+//
+//        Intent intent = getIntent();
+//
+//        final String algorithmName = intent.getStringExtra("algorithmName");
 
-        Intent intent = getIntent();
+//        TextView algorithmNameTextView = findViewById(R.id.algorithmNameTextView);
 
-        final String algorithmName = intent.getStringExtra("algorithmName");
-
-        TextView algorithmNameTextView = findViewById(R.id.algorithmNameTextView);
-
-        algorithmNameTextView.setText(algorithmName);
+//        algorithmNameTextView.setText(algorithmName);
     }
 }
