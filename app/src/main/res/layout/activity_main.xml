@@ -32,4 +32,5 @@
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             android:id="@+id/algorithmListView"/>
+
 </android.support.constraint.ConstraintLayout>

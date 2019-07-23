@@ -5,7 +5,6 @@ public enum AlgorithmType {
     COLOUR_CUBE_SLICE_WITH_SMOOTHING,
     RANDOM_SPREAD,
     NEAREST_TO_PREVIOUS_COLOUR,
-    COLOUR_CUBE_SLICE_WITH_RED_ACCUMULATION,
     NEAREST_TO_BLOCK_ABOVE,
     NEAREST_TO_BOTH_ABOVE_AND_PREVIOUS_BLOCKS,
     NEAREST_TO_ALL_THREE_BLOCKS_ABOVE,
@@ -19,8 +18,6 @@ public enum AlgorithmType {
                 return "Colour Cube Slice with Smoothing";
             case RANDOM_SPREAD:
                 return "Random Spread";
-            case COLOUR_CUBE_SLICE_WITH_RED_ACCUMULATION:
-                return "Colour Cube Slice with Red Accumulation";
             case NEAREST_TO_PREVIOUS_COLOUR:
                 return "Nearest to Previous Colour";
             case NEAREST_TO_BLOCK_ABOVE:
