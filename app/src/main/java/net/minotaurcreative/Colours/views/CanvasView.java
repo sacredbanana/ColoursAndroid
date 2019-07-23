@@ -34,7 +34,6 @@ public class CanvasView extends View {
         colourScreen = new ColourScreen(algorithmType);
         colourScreen.canvasView = this;
         colourScreen.processImage();
-        isReadyToRender = true;
         invalidate();
     }
 
@@ -55,4 +54,6 @@ public class CanvasView extends View {
     public void setAlgorithmType(AlgorithmType algorithmType) {
         this.algorithmType = algorithmType;
     }
+
+    public void setReadyToRender(boolean isReadyToRender) {this.isReadyToRender = isReadyToRender;}
 }

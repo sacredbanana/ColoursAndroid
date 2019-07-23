@@ -54,23 +54,17 @@ public class ColourScreen {
                     nearestToAllThreeAboveAndPrevious();
                     break;
             }
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... integers) {
-            super.onProgressUpdate(integers);
-
-            Log.i("progress: ", String.format("%d",integers[0]));
             generateBitmap();
+            canvasView.setReadyToRender(true);
             canvasView.postInvalidate();
+            return null;
         }
 
         /**
          * ALGORITHM: Colour Cube Slice
          * Colours added by slicing colour cube
          */
-        public void colourCubeSlice() {
+        private void colourCubeSlice() {
             int xCoord = 0;
             int yCoord = 0;
 
@@ -250,11 +244,7 @@ public class ColourScreen {
                 Colour targetColour = new Colour(targetColourPrevious, mixColour2);
                 int nearestColour = nearestColour(targetColour, i);
                 swapColours(i, nearestColour);
-                if (i % 10 == 0)
-                    Log.i("sd", String.format("%d",i));
-
             }
-            publishProgress(TOTAL_COLOURS);
         }
 
         /**
